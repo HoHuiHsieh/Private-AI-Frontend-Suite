@@ -1,0 +1,3 @@
+CREATE DATABASE api_db;
+CREATE DATABASE vector_db;
+CREATE DATABASE chatbot_db;

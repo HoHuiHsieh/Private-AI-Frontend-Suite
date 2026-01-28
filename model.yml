@@ -1,0 +1,49 @@
+# Add your RAG collections here, note it is dependent on the embedding model used.
+collections: 
+  - company_policy
+  - security_policy
+  - <your_other_collections>
+
+# Define your models and their configurations here. 
+models: 
+  qwen3-30b-a3b:
+    host: # Define the host(s) where the model is served, can be multiple for load balancing
+      - inference_server_0
+    port: # Define the port(s) corresponding to the host(s), make sure the order and the number of ports matches to hosts
+      - 8000
+    serve_type: ['openai:chat', 'openai:response']
+    source_type: openai:chat
+    response:
+      id: qwen3-30b-a3b
+      created: 0
+      object: model
+      owned_by: organization-owner
+
+  embeddinggemma-300m:
+    host:
+      - inference_server_1
+    port:
+      - 8001
+    serve_type: ['openai:embeddings']
+    source_type: triton:embeddings
+    response:
+      id: embeddinggemma-300m
+      created: 0
+      object: model
+      owned_by: organization-owner
+
+    # # Services like OpenAI API can also be defined here
+    # qwen3-30b-a3b:
+    #   host: 
+    #     - https://api.openai.com
+    #   port:
+    #     - 443
+    #   serve_type: ['openai:chat', 'openai:responses']
+    #   source_type: openai:chat
+    #   # source_type: openai:responses
+    #   public_api_key: <YOUR_OPENAI_API_KEY>
+    #   response:
+    #     id: qwen3-30b-a3b
+    #     created: 0
+    #     object: model
+    #     owned_by: openai

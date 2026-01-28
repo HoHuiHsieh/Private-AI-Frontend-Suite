@@ -1,0 +1,3 @@
+FROM nvcr.io/nvidia/tritonserver:25.12-pyt-python-py3 AS embeddinggemma-300m
+RUN pip install --upgrade \
+        sentence-transformers

@@ -1,0 +1,66 @@
+# Base stage: system deps + shared Python deps
+FROM python:3.12-slim AS base
+
+# Install system packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git bash vim postgresql-client build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    POETRY_VIRTUALENVS_CREATE=false
+
+WORKDIR /workspace
+
+# Upgrade pip and install common Python packages
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir \
+    openai \
+    "tritonclient[grpc]" \
+    starlette \
+    "fastapi[standard]" \
+    "hypercorn[h3]" \
+    httpx \
+    requests \
+    python-dotenv \
+    pydantic \
+    pydantic-settings \
+    "python-jose[cryptography]" \
+    "passlib[bcrypt]" \
+    python-multipart \
+    pyyaml \
+    bcrypt \
+    sqlalchemy \
+    psycopg2-binary \
+    "psycopg[binary,pool]" \
+    alembic \
+    PyJWT \
+    langchain-postgres \
+    langchain-openai \
+    langchain_community \
+    langgraph-checkpoint-postgres \
+    langgraph \
+    langchain-text-splitters \
+    langmem \
+    pypdf \
+    docx2txt
+
+
+
+# Development stage: interactive tools, useful for local builds
+FROM base AS dev
+ENV ENV=development
+# Add dev-only tools
+RUN pip install --no-cache-dir black pytest ipython
+# Set working directory
+WORKDIR /workspace/server
+
+
+# Production stage: runtime-optimized image
+FROM base AS prod
+ENV ENV=production
+# Create non-root user for running the app
+RUN useradd --create-home --shell /bin/bash appuser && chown -R appuser /workspace
+USER appuser
+# Set working directory
+WORKDIR /workspace/server

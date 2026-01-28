@@ -1,0 +1,143 @@
+html,
+body,
+#root {
+    height: 100%;
+}
+
+:root {
+    --body-bg: #f5f7fa;
+    --bg-left: #e3f2fd;
+    --text-left: #000;
+    --bg-right-start: #2f7bff;
+    --bg-right-end: #1760f2;
+    --text-right: #fff;
+    --table-border: #000;
+    --table-header-bg: #f2f2f2;
+    --table-row-alt: #f8f9fa;
+    --table-hover: #e9ecef;
+}
+
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: var(--body-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tweak react-chat-elements bubbles */
+.message-list .rce-mbox {
+    box-shadow: none;
+    margin: 8px 0;
+    border-radius: 16px;
+    max-width: 70%;
+}
+
+.message-list .rce-mbox-left {
+    margin-right: auto;
+}
+
+.rce-mbox--left .rce-mbox-body {
+    background: var(--bg-left);
+    color: var(--text-left);
+    border-radius: 16px 16px 16px 4px;
+}
+
+.rce-mbox--right .rce-mbox-body {
+    background: linear-gradient(180deg, var(--bg-right-start), var(--bg-right-end));
+    color: var(--text-right);
+    border-radius: 16px 16px 4px 16px;
+}
+
+.rce-mbox-body {
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* In your CSS file (e.g., App.css or Markdown.module.css) */
+.markdown-container table {
+  border: 2px solid var(--table-border) !important; /* Thicker outer table border */
+  border-collapse: collapse !important; /* Ensures single borders between cells */
+  width: 100%; /* Optional: adjust as needed */
+  margin-bottom: 1rem; /* Optional: adds spacing below the table */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+  border-radius: 4px; /* Rounded corners */
+  overflow: hidden; /* Ensures border-radius applies */
+}
+
+.markdown-container th,
+.markdown-container td {
+  border: 1px solid var(--table-border) !important; /* Thinner inner borders */
+  padding: 0.75rem; /* Increased padding for better spacing */
+  text-align: left; /* Optional: aligns text to the left */
+  vertical-align: top; /* Align content to top */
+}
+
+.markdown-container th {
+  background-color: var(--table-header-bg); /* Header background */
+  font-weight: 600; /* Bold headers */
+  border-bottom: 2px solid var(--table-border) !important; /* Thicker bottom border for headers */
+}
+
+.markdown-container tbody tr:nth-child(even) {
+  background-color: var(--table-row-alt); /* Alternating row colors */
+}
+
+.markdown-container tbody tr:hover {
+  background-color: var(--table-hover); /* Hover effect for rows */
+}
+
+/* KaTeX math styling */
+.markdown-container .katex {
+  font-size: 1.1em;
+}
+
+.markdown-container .katex-display {
+  margin: 1em 0;
+  text-align: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.markdown-container .katex-display > .katex {
+  display: inline-block;
+  text-align: center;
+}
+
+/* Ensure math blocks are properly displayed */
+.markdown-container .math-display,
+.markdown-container .math.math-display {
+  display: block;
+  margin: 1em 0;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.markdown-container .math-inline,
+.markdown-container .math.math-inline {
+  display: inline;
+}
+
+/* Animated progress bar for reasoning */
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background-color: #f0f0f0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #007bff;
+  animation: progress 2s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% { width: 0%; }
+  50% { width: 70%; }
+  100% { width: 100%; }
+}
+

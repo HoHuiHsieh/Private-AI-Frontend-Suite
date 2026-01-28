@@ -1,0 +1,7 @@
+FROM node:24-alpine
+# Install system dependencies
+RUN apk add --no-cache bash git vim
+# Install Node.js dependencies
+RUN npm install -g next typescript react react-dom
+# Set working directory
+WORKDIR /workspace

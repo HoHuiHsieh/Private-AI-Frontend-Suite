@@ -1,0 +1,325 @@
+services:
+  nginx_dev:
+    container_name: my_openai_frontend_nginx_dev
+    image: nginx:stable
+    environment:
+      TZ: Asia/Taipei
+    volumes:
+      - ./nginx/nginx.crt:/usr/share/nginx/ssl/nginx.crt
+      - ./nginx/nginx.key:/usr/share/nginx/ssl/nginx.key
+      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf
+      - ./share/static:/usr/share/nginx/www/static:ro
+      - ./share/uploads:/usr/share/nginx/www/uploads:rw
+    ports:
+      - 80:80   # serve http and redirect to https
+      - 443:443 # serve my_openai_frontend_(dev|prod) apis on port 443
+    restart: always
+    depends_on:
+      - my_openai_frontend_dev
+      - webui_dev
+    networks:
+      - api_network
+    profiles:
+      - dev
+
+  # api service container for development
+  my_openai_frontend_dev:
+    container_name: my_openai_frontend_server_dev
+    image: my-openai-frontend:server
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.server
+      target: dev
+    env_file:
+      - .env.dev
+    environment:
+      TZ: Asia/Taipei
+      OAUTH2_ENABLE: ${OAUTH2_ENABLE}
+      OAUTH2_SECRET_KEY: ${OAUTH2_SECRET_KEY}
+      OAUTH2_ALGORITHM: ${OAUTH2_ALGORITHM}
+      OAUTH2_ACCESS_TOKEN_EXPIRE_TIME: ${OAUTH2_ACCESS_TOKEN_EXPIRE_TIME}
+      OAUTH2_REFRESH_TOKEN_EXPIRE_TIME: ${OAUTH2_REFRESH_TOKEN_EXPIRE_TIME}
+      DEFAULT_ADMIN_USERNAME: ${DEFAULT_ADMIN_USERNAME}
+      DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL}
+      DEFAULT_ADMIN_FULL_NAME: ${DEFAULT_ADMIN_FULL_NAME}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD}
+      DEFAULT_ADMIN_DISABLED: ${DEFAULT_ADMIN_DISABLED}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_TABLE_PREFIX: ${DATABASE_TABLE_PREFIX}
+      LOGGING_LEVEL: ${LOGGING_LEVEL}
+      LOGGING_DATABASE_ENABLED: ${LOGGING_DATABASE_ENABLED}
+      LOGGING_DATABASE_RETENTION_DAYS: ${LOGGING_DATABASE_RETENTION_DAYS}
+      LOGGING_CONSOLE_ENABLED: ${LOGGING_CONSOLE_ENABLED}
+      LOGGING_CONSOLE_FORMAT: ${LOGGING_CONSOLE_FORMAT}
+    volumes:
+      - .:/workspace
+    working_dir: /workspace/server
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    command: tail -f /dev/null
+    depends_on:
+      postgres_dev:
+        condition: service_healthy
+    networks:
+      - api_network
+    profiles:
+      - dev
+
+  # static web file builder, development only
+  webui_dev:
+    container_name: my_openai_frontend_webui_dev
+    image: my-openai-frontend:webui
+    environment:
+      TZ: Asia/Taipei
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.webui
+    volumes:
+      - ./webui:/workspace
+    working_dir: /workspace
+    expose:
+      - 8080
+    restart: always
+    networks:
+      - api_network
+    command: tail -f /dev/null
+    profiles:
+      - dev
+
+   # PostgreSQL database service for development
+  postgres_dev:
+    container_name: my_openai_frontend_postgres_dev
+    image: pgvector/pgvector:pg16
+    env_file:
+      - .env.dev
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      PGDATA: /var/lib/postgresql/16/docker
+      TZ: Asia/Taipei
+      PGTZ: Asia/Taipei
+    expose:
+      - 5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME} -d api_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - ./postgres/dev:/var/lib/postgresql
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: always
+    networks:
+      - api_network
+    profiles:
+      - dev
+
+  nginx_prod:
+    container_name: my_openai_frontend_nginx_prod
+    image: nginx:stable
+    environment:
+      TZ: Asia/Taipei
+    volumes:
+      - ./nginx/nginx.crt:/usr/share/nginx/ssl/nginx.crt
+      - ./nginx/nginx.key:/usr/share/nginx/ssl/nginx.key
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf
+      - ./nginx/cache:/etc/nginx/cache
+      - ./nginx/log:/var/log/nginx
+      - ./webui/out:/usr/share/nginx/www/webui:ro
+      - ./share/static:/usr/share/nginx/www/static:ro
+      - ./share/uploads:/usr/share/nginx/www/uploads:rw
+    ports:
+      - 80:80   # serve http and redirect to https
+      - 443:443 # serve my_openai_frontend_(dev|prod) apis on port 443 
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: always
+    depends_on:
+      - my_openai_frontend_prod
+    networks:
+      - api_network
+    profiles:
+      - prod
+      
+  # api service container for production
+  my_openai_frontend_prod:
+    container_name: my_openai_frontend_server_prod
+    image: my-openai-frontend:server
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.server
+      target: prod
+    env_file:
+      - .env.prod
+    environment:
+      TZ: Asia/Taipei
+      OAUTH2_ENABLE: ${OAUTH2_ENABLE}
+      OAUTH2_SECRET_KEY: ${OAUTH2_SECRET_KEY}
+      OAUTH2_ALGORITHM: ${OAUTH2_ALGORITHM}
+      OAUTH2_ACCESS_TOKEN_EXPIRE_TIME: ${OAUTH2_ACCESS_TOKEN_EXPIRE_TIME}
+      OAUTH2_REFRESH_TOKEN_EXPIRE_TIME: ${OAUTH2_REFRESH_TOKEN_EXPIRE_TIME}
+      DEFAULT_ADMIN_USERNAME: ${DEFAULT_ADMIN_USERNAME}
+      DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL}
+      DEFAULT_ADMIN_FULL_NAME: ${DEFAULT_ADMIN_FULL_NAME}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD}
+      DEFAULT_ADMIN_DISABLED: ${DEFAULT_ADMIN_DISABLED}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_TABLE_PREFIX: ${DATABASE_TABLE_PREFIX}
+      LOGGING_LEVEL: ${LOGGING_LEVEL}
+      LOGGING_DATABASE_ENABLED: ${LOGGING_DATABASE_ENABLED}
+      LOGGING_DATABASE_RETENTION_DAYS: ${LOGGING_DATABASE_RETENTION_DAYS}
+      LOGGING_CONSOLE_ENABLED: ${LOGGING_CONSOLE_ENABLED}
+      LOGGING_CONSOLE_FORMAT: ${LOGGING_CONSOLE_FORMAT}
+      PYTHONPATH: /workspace/server/src
+    volumes:
+      - .:/workspace
+    working_dir: /workspace/server
+    expose:
+      - 3000
+    restart: always
+    command: hypercorn src.main:app --bind 0.0.0.0:3000 --workers 8 --worker-class asyncio
+    depends_on:
+      postgres_prod:
+        condition: service_healthy
+    networks:
+      - api_network
+    profiles:
+      - prod
+
+  # static web file builder, production only
+  webui_prod:
+    container_name: my_openai_frontend_webui_prod
+    image: my-openai-frontend:webui
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.webui
+    environment:
+      TZ: Asia/Taipei
+    volumes:
+      - ./webui:/workspace
+    restart: no
+    working_dir: /workspace
+    command: npm run build # build static files for production
+    profiles:
+      - prod
+
+  # PostgreSQL database service for production
+  postgres_prod:
+    container_name: my_openai_frontend_postgres_prod
+    image: pgvector/pgvector:pg16
+    env_file:
+      - .env.prod
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      PGDATA: /var/lib/postgresql/16/docker
+      TZ: Asia/Taipei
+      PGTZ: Asia/Taipei
+    expose:
+      - 5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME} -d api_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - ./postgres/prod:/var/lib/postgresql
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: always
+    networks:
+      - api_network
+    profiles:
+      - prod
+
+  inference_server_0:
+    container_name: ai_inference_server_0
+    image: my-openai-frontend:qwen3
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.trtllm
+      target: qwen3
+    environment:
+      - HF_HOME=/root/.cache/huggingface
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    working_dir: /workspace
+    expose:
+      - 8000
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [gpu]
+    ipc: host
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    command: >
+      trtllm-serve Qwen/Qwen3-30B-A3B-Instruct-2507
+        --host 0.0.0.0
+        --port 8000
+        --max_batch_size 32
+        --free_gpu_memory_fraction 0.8
+    networks:
+      - api_network
+    profiles:
+      - dev
+      - prod
+
+  inference_server_1:
+    container_name: ai_inference_server_1
+    image: my-openai-frontend:embeddinggemma-300m
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.tritonserver
+      target: embeddinggemma-300m
+    environment:
+      - HF_HOME=/root/.cache/huggingface
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ./triton_repo/inference_server_1:/workspace/repository:ro
+    working_dir: /workspace
+    expose:
+      - 8000
+      - 8001
+      - 8002
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [gpu]
+    command: >
+      tritonserver --model-repository=/workspace/repository
+                   --model-control-mode=poll
+                   --repository-poll-secs=1
+    networks:
+      - api_network
+    profiles:
+      - dev
+      - prod
+
+
+networks:
+  api_network:
+    driver: bridge
