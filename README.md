@@ -90,10 +90,10 @@ The application will be available at:
 ## Supported Models
 
 ### Chat Models
-- **Qwen3-30B-A3B**: High-performance chat model
+- **Qwen/Qwen3-30B-A3B-Instruct-2507**: High-performance chat model
 
 ### Embedding Models
-- **Gemma-300M**: Efficient embedding model
+- **google/embeddinggemma-300m**: Efficient embedding model
 
 ### Audio Models
 - Coming soon...
