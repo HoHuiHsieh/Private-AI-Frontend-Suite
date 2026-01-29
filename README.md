@@ -1,8 +1,17 @@
 # OpenAI-Compatible Frontend
 
-<img src="image/screenshot.png" alt="Demo Screenshot of the Web UI" width="50%"> <img src="image/asus-dashboard.png" alt="Screenshot of Asus Ascent GX10 Server Dashboard" width="50%">
-
 A self-hosted OpenAI-compatible API server with user/API-key management, token-based authentication, and RAG chatbot using PostgreSQL/pgvector. Supports dev/prod via Docker Compose, Nginx, Triton servers, SSL/TLS, and designed for Asus Ascent GX10 and NVIDIA Spark DGX GB10 servers.
+
+<p align="center">
+   <img src="image/screenshot.png" alt="Demo Screenshot of the Web UI" width="40%">
+   <br>
+   <em>A preview of the modern, responsive Web UI featuring user management, usage analytics, and seamless interaction with AI models.</em>
+</p>
+<p align="center">
+   <img src="image/asus-dashboard.png" alt="Screenshot of Asus Ascent GX10 Server Dashboard" width="40%">
+   <br>
+   <em>Dashboard view from the Asus Ascent GX10 server, showcasing real-time resource monitoring and API serving status.</em>
+</p>
 
 ## Features
 
