@@ -170,7 +170,6 @@ async def stream_chat_responses(
                 content=PromptTemplate(
                     input_variables=["ingestion", "retrieval", "content"],
                     template=(
-                        "{ingestion}\n\n"
                         "{retrieval}\n\n"
                         "{content}"
                     ),

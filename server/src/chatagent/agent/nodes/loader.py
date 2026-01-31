@@ -46,9 +46,11 @@ def file_loader(
     if mime_type == 'application/pdf':
         ext = '.pdf'
         loader_class = PyPDFLoader
+        kargs = {"mode": "single"}
     elif mime_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
         ext = '.docx'
         loader_class = Docx2txtLoader
+        kargs = {}
     elif mime_type.startswith('text/'):
         # For text files, decode and create document directly
         content = file_bytes.decode('utf-8')
@@ -69,23 +71,23 @@ def file_loader(
         temp_file.write(file_bytes)
         temp_path = temp_file.name
 
-    try:
-        # Load documents using the appropriate loader
-        loader = loader_class(temp_path)
-        documents = loader.load()
+        try:
+            # Load documents using the appropriate loader
+            loader = loader_class(temp_path, **kargs)
+            documents = loader.load()
 
-        # Add metadata to each document
-        for doc in documents:
-            doc.metadata.update({
-                'file_id': file_id,
-                'source': filename or 'uploaded_file',
-                'mime_type': mime_type
-            })
+            # Add metadata to each document
+            for doc in documents:
+                doc.metadata.update({
+                    'file_id': file_id,
+                    'source': filename or 'uploaded_file',
+                    'mime_type': mime_type
+                })
 
-        return documents
-    finally:
-        # Clean up temp file
-        os.unlink(temp_path)
+            return documents
+        finally:
+            # Clean up temp file
+            os.unlink(temp_path)
 
 
 def ingestion_to_memory(
