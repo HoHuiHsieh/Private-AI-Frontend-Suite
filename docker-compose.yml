@@ -272,12 +272,15 @@ services:
     ulimits:
       memlock: -1
       stack: 67108864
+    # feat: added tool_parser argument for Qwen3 tool use capability
+    # https://github.com/NVIDIA/TensorRT-LLM/pull/8216
     command: >
       trtllm-serve Qwen/Qwen3-30B-A3B-Instruct-2507
         --host 0.0.0.0
         --port 8000
         --max_batch_size 32
         --free_gpu_memory_fraction 0.8
+        --tool_parser qwen3
     networks:
       - api_network
     profiles:

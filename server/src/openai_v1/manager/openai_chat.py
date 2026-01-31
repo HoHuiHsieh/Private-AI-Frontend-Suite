@@ -138,10 +138,11 @@ async def openai_chat_completion(
                 message=ChatMessage(
                     role=choice.message.role,
                     content=choice.message.content,
-                    tool_calls=choice.message.tool_calls if hasattr(
-                        choice.message, 'tool_calls') else None,
-                    function_call=choice.message.function_call if hasattr(
-                        choice.message, 'function_call') else None
+                    # fixed tool_calls and function_call extraction
+                    tool_calls=[tc.model_dump() for tc in choice.message.tool_calls] if hasattr(
+                        choice.message, 'tool_calls') and choice.message.tool_calls else None,
+                    function_call=choice.message.function_call.model_dump() if hasattr(
+                        choice.message, 'function_call') and choice.message.function_call else None
                 ),
                 finish_reason=choice.finish_reason,
                 logprobs=choice.logprobs if hasattr(
