@@ -688,14 +688,14 @@ def run_all_tests():
     # Run tests
     tests = [
         ("Basic chat completion", lambda: test_chat_completion_basic(api_key)),
-        # ("Chat with system message",
-        #  lambda: test_chat_completion_with_system_message(api_key)),
-        # ("Multi-turn conversation", lambda: test_chat_completion_multi_turn(api_key)),
-        # ("Chat with temperature", lambda: test_chat_completion_with_temperature(api_key)),
-        # ("Streaming chat completion", lambda: test_chat_completion_streaming(api_key)),
-        # ("Chat without authentication", test_chat_completion_without_auth),
-        # ("Chat with invalid model", lambda: test_chat_completion_invalid_model(api_key)),
-        # ("Chat without messages", lambda: test_chat_completion_missing_messages(api_key)),
+        ("Chat with system message",
+         lambda: test_chat_completion_with_system_message(api_key)),
+        ("Multi-turn conversation", lambda: test_chat_completion_multi_turn(api_key)),
+        ("Chat with temperature", lambda: test_chat_completion_with_temperature(api_key)),
+        ("Streaming chat completion", lambda: test_chat_completion_streaming(api_key)),
+        ("Chat without authentication", test_chat_completion_without_auth),
+        ("Chat with invalid model", lambda: test_chat_completion_invalid_model(api_key)),
+        ("Chat without messages", lambda: test_chat_completion_missing_messages(api_key)),
         ("Chat with tool use", lambda: test_chat_completion_with_tools(api_key)),
     ]
 

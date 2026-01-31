@@ -146,7 +146,7 @@ def retrieval_node(state: State, config: RunnableConfig, **kwargs) -> State:
             relevant_docs_content = "\n------\n".join(
                 [f"{doc.page_content}\n(Source: {doc.metadata.get('source', 'unknown')})\n" for doc in relevant_docs]
             )
-            retrieval_prompt = f"Relevant document(s) found:\n{relevant_docs_content}\n\n"
+            retrieval_prompt = f"Relevant document(s) found:\n\n{relevant_docs_content}\n\n"
             return {
                 **state,
                 "prompt": {

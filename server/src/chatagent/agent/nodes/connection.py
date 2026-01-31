@@ -30,10 +30,11 @@ def create_chatopenai_connection(model_name: str, api_key: str):
     return ChatOpenAI(
         model=model_name,
         base_url='http://localhost:3000/v1',
+        # base_url=f"http://inference_server_0:8000/v1",
         api_key=api_key,
         http_client=httpx.Client(verify=False),
         streaming=False,
-        timeout=300.0,
+        timeout=30.0,
         max_retries=2,
     )
 
@@ -55,7 +56,7 @@ def create_embeddings_connection(model_name: str, api_key: str):
         base_url='http://localhost:3000/v1',
         api_key=api_key,
         http_client=httpx.Client(verify=False),
-        timeout=300.0,
+        timeout=30.0,
         max_retries=2,
         tiktoken_enabled=False,
         check_embedding_ctx_length=False
@@ -89,6 +90,7 @@ def create_vector_store_connection(
         connection=DB_URL,
         use_jsonb=True,
     )
+
 
 @lru_cache(maxsize=20)
 def create_checkpointer() -> AsyncPostgresSaver:

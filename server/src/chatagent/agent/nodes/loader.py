@@ -7,8 +7,10 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
 from .connection import create_vector_store_connection, get_memory_collection_name
+from ..utils import estimate_tokens
 
-CHUNK_SIZE = 1000
+
+CHUNK_SIZE = 2000
 CHUNK_OVERLAP = 200
 
 
@@ -103,6 +105,7 @@ def ingestion_to_memory(
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=CHUNK_SIZE,
         chunk_overlap=CHUNK_OVERLAP,
+        length_function=estimate_tokens
     )
     chunked_docs = text_splitter.split_documents(documents)
 

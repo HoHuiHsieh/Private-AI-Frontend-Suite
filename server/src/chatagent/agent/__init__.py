@@ -15,6 +15,7 @@ from ..models import (
 )
 from .nodes import (
     ingestion_node,
+    ingestion_agent_graph,
     retrieval_node,
     summary_node,
     delete_vector_store,
@@ -51,7 +52,8 @@ async def initialize_chatagent():
     if graph is None:
         # Compile graph
         workflow = StateGraph(State)
-        workflow.add_node("ingestion", ingestion_node)
+        # workflow.add_node("ingestion", ingestion_node)
+        workflow.add_node("ingestion", ingestion_agent_graph)
         workflow.add_node("summary", summary_node)
         workflow.add_node("retrieval", retrieval_node)
         workflow.add_edge(START, "ingestion")

@@ -4,13 +4,10 @@ State definition for chatbot graph.
 from typing import Annotated, List, Union, Dict, Any
 from typing_extensions import TypedDict
 from langgraph.graph.message import add_messages, AnyMessage
-from langmem.short_term import RunningSummary
+from langchain_core.documents import Document
 
 
 class State(TypedDict):
-    # messages between user and assistant
     messages: Annotated[List[AnyMessage], add_messages]
     prompt: Dict[str, str]  # prompt from agentic reasoning for user query
-    summary: RunningSummary  # summary of conversation (langmem)
-    # messages that have been summarized (langmem)
-    summarized_messages: List[AnyMessage]
+    documents: List[Document]  # ingested documents
